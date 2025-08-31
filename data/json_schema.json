@@ -1,0 +1,111 @@
+{
+  "personal_information": {
+    "full_name": "string",
+    "title": "string", 
+    "email": "string",
+    "phone": "string",
+    "location": {
+      "city": "string",
+      "state": "string",
+      "country": "string",
+      "postal_code": "string"
+    },
+    "linkedin_url": "string",
+    "website_or_portfolio": "string",
+    "github_url": "string"
+  },
+  "summary": "string",
+  "work_experience": [
+    {
+      "job_title": "string",
+      "company": "string",
+      "employment_type": "string", 
+      "location": "string",
+      "start_date": "YYYY-MM",
+      "end_date": "YYYY-MM or 'present'",
+      "achievements": ["string"]
+    }
+  ],
+  "education": [
+    {
+      "degree": "string",
+      "field_of_study": "string",
+      "institution": "string",
+      "location": "string",
+      "start_date": "YYYY-MM",
+      "end_date": "YYYY-MM",
+      "grade_or_gpa": "string"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "string",
+      "issuing_organization": "string",
+      "issue_date": "YYYY-MM",
+      "expiration_date": "YYYY-MM or 'does not expire'",
+      "credential_id": "string",
+      "credential_url": "string"
+    }
+  ],
+  "skills": {
+    "hard_skills": ["string"],
+    "soft_skills": ["string"],
+    "languages": [
+      {
+        "language": "string",
+        "proficiency": "string" 
+      }
+    ],
+    "tools_and_technologies": ["string"]
+  },
+  "projects": [
+    {
+      "name": "string",
+      "description": "string",
+      "technologies_used": ["string"],
+      "role": "string",
+      "start_date": "YYYY-MM",
+      "end_date": "YYYY-MM",
+      "project_url": "string"
+    }
+  ],
+  "publications": [
+    {
+      "title": "string",
+      "publisher": "string",
+      "publication_date": "YYYY-MM",
+      "url": "string",
+      "description": "string"
+    }
+  ],
+  "awards": [
+    {
+      "title": "string",
+      "issuer": "string",
+      "date": "YYYY-MM",
+      "description": "string"
+    }
+  ],
+  "volunteer_experience": [
+    {
+      "role": "string",
+      "organization": "string",
+      "location": "string",
+      "start_date": "YYYY-MM",
+      "end_date": "YYYY-MM or 'present'",
+      "description": "string"
+    }
+  ],
+  "preferences": {
+    "desired_job_titles": ["string"],
+    "desired_locations": ["string"],
+    "remote_work": "boolean",
+    "salary_expectations": {
+      "currency": "string",
+      "minimum": "number",
+      "maximum": "number",
+      "period": "string"
+    },
+    "notice_period": "string"
+  }
+}
