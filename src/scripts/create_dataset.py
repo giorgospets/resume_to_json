@@ -1,18 +1,26 @@
 """Script to fill fill the "json" column of the dataset by LLM responses."""
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+
+import sys
+sys.path.append(os.path.join(PROJECT_ROOT, "src"))
+
 import argparse
 import logging
 import time
 import json
 import concurrent.futures
 from typing import List, Dict, Any, Iterator
-import os
 import pendulum
 from openai import OpenAI
 
 import threading
 from collections import defaultdict
-from dotenv import load_dotenv
+
 
 from utils.dataset_creation_prompts import (
     SYSTEM_PROMPT,
@@ -20,21 +28,8 @@ from utils.dataset_creation_prompts import (
     EXAMPLE_2, RESPONSE_2
 )
 
-
-load_dotenv()
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-
-
-MODELS = [
-    "ilsp/Llama-Krikri-8B-Instruct",
-    "google/gemma-3-27b-it:free",
-    "meta-llama/llama-3.3-70b-instruct:free",
-    "meta-llama/llama-3.3-70b-instruct",
-    "google/gemini-2.5-flash-lite",
-    "qwen/qwen3-235b-a22b-2507",
-]
 
 
 # Configuration for different models
@@ -156,22 +151,26 @@ def create_batch_requests(
             (EXAMPLE_1, RESPONSE_1),
             (EXAMPLE_2, RESPONSE_2)
         ]
-        conversation = [{"role": "system", "content": SYSTEM_PROMPT}]
+        conversation_base = [{"role": "system", "content": SYSTEM_PROMPT}]
         for item in few_shot_examples:
-            conversation.extend([
+            conversation_base.extend([
                 {"role": "user", "content": item[0]},
                 {"role": "assistant", "content": json.dumps(item[1], ensure_ascii=False)}
             ])
 
         requests = []
         for d in dataset_entries_list:
+            conversation = conversation_base.copy()
             requests.append({
                 "custom_id": d["ID"],
                 "method": "POST",
                 "url": "/v1/chat/completions",
                 "body": {
                     "model": model_name,
-                    "messages": conversation,
+                    "messages": conversation.append({
+                        "role": "user",
+                        "content": d["Resume_md"]
+                    }),
                     "provider": {
                         "data_collection": "allow",
                         "allow_fallbacks": False 
@@ -302,22 +301,29 @@ def fill_dataset(
 
 def main():
     parser = argparse.ArgumentParser(description="Extract metadata from headers using LLM.")
-    parser.add_argument("--model_index", type=int, default=-1, help="Index of the model to use from the MODELS list.")
-    parser.add_argument("--number_limit", type=int, default=10000, help="Number of headers to process in this run.")
+    parser.add_argument("--model_index", type=int, default=1, help="Index of the model to use from the MODELS list.")
+    parser.add_argument("--number_limit", type=int, default=1, help="Number of headers to process in this run.")
     parser.add_argument("--rpm_limit", type=int, default=200)
     args = parser.parse_args()
+
+    MODELS = [
+        "google/gemma-3-27b-it:free",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "meta-llama/llama-3.3-70b-instruct",
+        "google/gemini-2.5-flash-lite",
+        "qwen/qwen3-235b-a22b-2507",
+    ]
 
     model_name = MODELS[args.model_index]
     logger.info(f"Using model: {model_name}")
 
-    with open("change_this_path", "rb") as f:
+    with open(
+        os.path.join(PROJECT_ROOT, "data/preprocessed_dataset.json"), 
+        "rb"
+    ) as f:
         input: list[dict] = json.load(f)
 
-    years_to_process = [i for i in range(0, 2017)]
-    years_to_process = [str(y) for y in years_to_process]
-    years_to_process.sort(reverse=True)
-
-    output_filepath = "change_this_as_well"
+    output_filepath = os.path.join(PROJECT_ROOT, "data/dataset.json")
 
     try:
         with open(output_filepath) as f:
@@ -332,7 +338,7 @@ def main():
     # Only process unprocessed IDS 
     processed = {x["ID"] for x in existing_dataset}
     entries_to_process = [
-        {x}
+        x
         for x in input
         if x["ID"] not in processed
     ]

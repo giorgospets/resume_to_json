@@ -14,7 +14,7 @@
     "website_or_portfolio": "string",
     "github_url": "string"
   },
-  "summary": "string",
+  "about_info": "string",
   "work_experience": [
     {
       "job_title": "string",
