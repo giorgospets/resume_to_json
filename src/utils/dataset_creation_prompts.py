@@ -17,21 +17,122 @@ SYSTEM_PROMPT = f"""You are an expert in converting CVs to JSON format based on 
 - 
 """
 
-EXAMPLE_1 = """"""
+EXAMPLE_1 = """COMMUNITY OUTREACH COORDINATOR
+
+Professional Summary
+
+A dedicated, results-driven, and resourceful professional with a strong focus on building positive community relationships and fostering program growth. Possesses excellent organizational, problem-solving, and interpersonal communication skills, supported by over 10 years of experience in client relations and team leadership. A passionate advocate for creating accessible educational opportunities and supportive community networks, adept at managing multiple projects and engaging effectively with diverse populations.
+
+Core Qualifications
+
+Strategic Planning
+
+Public Speaking & Presentations
+
+Relationship & Team Management
+
+Event Planning & Execution
+
+Conflict Resolution
+
+Client Relationship Management (CRM) Software
+
+Project Management
+
+Grant Writing Basics
+
+Bilingual (English/Spanish)
+
+Maintains Strict Confidentiality
+
+Accomplishments
+
+Received "Employee of the Year" award for outstanding client retention and team leadership at BrightPath Solutions.
+
+Consistently named to the Dean's List during undergraduate studies.
+
+Selected to train and mentor new team members on company protocols and effective client communication strategies.
+
+Experience
+
+Substitute Teacher | Aug 2016 to Current
+Denver Public Schools – Denver, CO
+
+Execute lesson plans provided by the regular teacher to ensure continuity of learning across various subjects and grade levels.
+
+Adapt teaching methods to meet the needs of diverse student populations, including those with special needs.
+
+Maintain a productive, safe, and respectful classroom environment through effective classroom management techniques.
+
+Communicate with faculty and administrators regarding student progress and any classroom issues.
+
+Provide clear instruction, grade assignments, and offer constructive feedback to students.
+
+Community Outreach Assistant | Jun 2014 to Jul 2016
+Colorado Community Health Network – Denver, CO
+
+Developed and maintained positive relationships with community leaders, local businesses, and partner organizations.
+
+Coordinated and promoted community events, workshops, and health fairs to increase program visibility and participation.
+
+Served as the primary point of contact for public inquiries, providing information and resources effectively.
+
+Managed the organization's social media accounts and created content for monthly newsletters.
+
+Assisted in data collection and reporting to track program impact and identify areas for improvement.
+
+Client Relations Manager | Apr 2010 to May 2014
+BrightPath Solutions – Boulder, CO
+
+Managed a portfolio of over 50 key client accounts, ensuring high levels of satisfaction and retention.
+
+Acted as the main liaison between clients and internal teams to guarantee the timely and successful delivery of our solutions.
+
+Analyzed client feedback and performance data to develop strategies for service improvement.
+
+Trained and supervised a team of 5 customer service representatives, focusing on performance and professional development.
+
+Resolved complex client issues and escalations with diplomacy and efficiency.
+
+Customer Service Supervisor | Sep 2006 to Apr 2010
+Summit Financial Services – Aurora, CO
+
+Supervised the daily operations of a 15-person customer service team.
+
+Monitored call metrics and individual performance to ensure quality and productivity standards were met.
+
+Addressed and resolved escalated customer complaints, turning negative experiences into positive outcomes.
+
+Created employee work schedules and managed shift assignments.
+
+Developed and delivered training on new products and customer service protocols.
+
+Education
+
+Bachelor of Arts, Communications (Minor in Business Administration) | 2010
+University of Colorado Boulder – Boulder, CO
+
+Associate of Arts, Liberal Arts | 2007
+Front Range Community College – Westminster, CO
+
+Skills
+Public Speaking, Client Relations, Team Leadership, Event Planning, Project Management, CRM Software, Social Media Management, Conflict Resolution, Mentorship, Scheduling, Reporting, Customer Service, Microsoft Office Suite, Data Entry, Written Communication, Community Outreach, Teaching Support.
+"""
+
 RESPONSE_1 = {
   "personal_information": {
-    "full_name": "Jessica Martinez",
+    "full_name": "",
     "title": "Community Outreach Coordinator",
-    "email": "jessica.martinez@email.com",
-    "phone": "+1-555-123-4567",
+    "email": "",
+    "phone": "",
     "location": {
-      "city": "Denver",
-      "state": "CO",
-      "country": "USA",
-      "postal_code": "80203"
+      "city": "",
+      "state": "",
+      "country": "",
+      "postal_code": ""
     },
-    "linkedin_url": "https://www.linkedin.com/in/jessicamartinez",
-    "website_or_portfolio": "https://jessicamartinezportfolio.com",
+    "linkedin_url": "",
+    "website_or_portfolio": "",
     "github_url": ""
   },
   "about_info": "A dedicated, results-driven, and resourceful professional with a strong focus on building positive community relationships and fostering program growth. Possesses excellent organizational, problem-solving, and interpersonal communication skills, supported by over 10 years of experience in client relations and team leadership. A passionate advocate for creating accessible educational opportunities and supportive community networks, adept at managing multiple projects and engaging effectively with diverse populations.",
@@ -44,11 +145,11 @@ RESPONSE_1 = {
       "start_date": "2016-08",
       "end_date": "present",
       "achievements": [
-        "Executed lesson plans provided by the regular teacher to ensure continuity of learning across various subjects and grade levels.",
-        "Adapted teaching methods to meet the needs of diverse student populations, including those with special needs.",
-        "Maintained a productive, safe, and respectful classroom environment through effective classroom management techniques.",
-        "Communicated with faculty and administrators regarding student progress and classroom issues.",
-        "Provided clear instruction, graded assignments, and offered constructive feedback to students."
+        "Execute lesson plans provided by the regular teacher to ensure continuity of learning across various subjects and grade levels.",
+        "Adapt teaching methods to meet the needs of diverse student populations, including those with special needs.",
+        "Maintain a productive, safe, and respectful classroom environment through effective classroom management techniques.",
+        "Communicate with faculty and administrators regarding student progress and any classroom issues.",
+        "Provide clear instruction, grade assignments, and offer constructive feedback to students."
       ]
     },
     {
@@ -75,7 +176,7 @@ RESPONSE_1 = {
       "end_date": "2014-05",
       "achievements": [
         "Managed a portfolio of over 50 key client accounts, ensuring high levels of satisfaction and retention.",
-        "Acted as the main liaison between clients and internal teams to guarantee the timely and successful delivery of solutions.",
+        "Acted as the main liaison between clients and internal teams to guarantee the timely and successful delivery of our solutions.",
         "Analyzed client feedback and performance data to develop strategies for service improvement.",
         "Trained and supervised a team of 5 customer service representatives, focusing on performance and professional development.",
         "Resolved complex client issues and escalations with diplomacy and efficiency."
@@ -103,61 +204,54 @@ RESPONSE_1 = {
       "field_of_study": "Communications (Minor in Business Administration)",
       "institution": "University of Colorado Boulder",
       "location": "Boulder, CO",
-      "start_date": "2006-08",
-      "end_date": "2010-05",
-      "grade_or_gpa": "3.7"
+      "start_date": "",
+      "end_date": "2010-01",
+      "grade_or_gpa": ""
     },
     {
       "degree": "Associate of Arts",
       "field_of_study": "Liberal Arts",
       "institution": "Front Range Community College",
       "location": "Westminster, CO",
-      "start_date": "2004-08",
+      "start_date": "",
       "end_date": "2007-05",
-      "grade_or_gpa": "3.8"
+      "grade_or_gpa": ""
     }
   ],
   "certifications": [],
   "skills": {
     "hard_skills": [
-      "Strategic Planning",
-      "Event Planning & Execution",
+      "Event Planning",
       "Project Management",
-      "Grant Writing Basics",
-      "Client Relationship Management (CRM) Software",
+      "CRM Software",
       "Social Media Management",
-      "Data Entry",
+      "Scheduling",
+      "Reporting",
       "Microsoft Office Suite",
-      "Reporting"
+      "Data Entry"
     ],
     "soft_skills": [
       "Public Speaking",
+      "Client Relations",
       "Team Leadership",
-      "Relationship Management",
       "Conflict Resolution",
       "Mentorship",
-      "Written Communication",
-      "Scheduling",
       "Customer Service",
-      "Community Outreach"
+      "Written Communication",
+      "Community Outreach",
+      "Teaching Support"
     ],
     "languages": [
       {
         "language": "English",
-        "proficiency": "Native or Bilingual"
+        "proficiency": ""
       },
       {
         "language": "Spanish",
-        "proficiency": "Professional Working Proficiency"
+        "proficiency": ""
       }
     ],
-    "tools_and_technologies": [
-      "Salesforce",
-      "Microsoft Office Suite",
-      "Facebook",
-      "Twitter",
-      "LinkedIn"
-    ]
+    "tools_and_technologies": []
   },
   "projects": [],
   "publications": [],
@@ -177,16 +271,16 @@ RESPONSE_1 = {
   ],
   "volunteer_experience": [],
   "preferences": {
-    "desired_job_titles": ["Community Outreach Coordinator"],
-    "desired_locations": ["Denver, CO", "Boulder, CO"],
-    "remote_work": True,
+    "desired_job_titles": [],
+    "desired_locations": [],
+    "remote_work": False ,
     "salary_expectations": {
-      "currency": "USD",
-      "minimum": 60000,
-      "maximum": 75000,
-      "period": "year"
+      "currency": "",
+      "minimum": None,
+      "maximum": None,
+      "period": ""
     },
-    "notice_period": "2 weeks"
+    "notice_period": ""
   }
 }
 
