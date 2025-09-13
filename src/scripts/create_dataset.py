@@ -45,6 +45,9 @@ CONFIG = {
         "top_p": 0.95,
         "base_url": "https://openrouter.ai/api/v1",
         "api_key": os.getenv("OPENROUTER_API_KEY"),
+        # "providers": [
+        #     "deepinfra/turbo"
+        # ]
     },
     "qwen": {
         "temperature": 0.7,
@@ -52,8 +55,7 @@ CONFIG = {
         "base_url": "https://openrouter.ai/api/v1",
         "api_key": os.getenv("OPENROUTER_API_KEY"),
         "providers": [
-            "targon/bf16", 
-            # "deepinfra/fp8"
+            "chutes"
         ]
     },
     "DeepSeek": {
@@ -132,58 +134,61 @@ class RateLimiter:
 
 rate_limiter = RateLimiter()
 
-def extract_json_from_response(response: str) -> dict | json.JSONDecodeError:
 
+def extract_json_from_response(response: str) -> dict | None:
     """Extracts a JSON object from a model's string response."""
     try:
         return json.loads(response.strip())
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding JSON from response: {e}\nResponse was: {response}")
-        raise e
-
-def create_batch_requests(
-    dataset_entries_list: List[dict], 
-    model_name: str, 
-) -> List[Dict[str, Any]]:
-    """Prepares a list of requests for the batch API with caching enabled."""
-    try:
-        few_shot_examples = [
-            (EXAMPLE_1, RESPONSE_1),
-            # (EXAMPLE_2, RESPONSE_2)
-        ]
-        conversation_base = [{"role": "system", "content": SYSTEM_PROMPT}]
-        for item in few_shot_examples:
-            conversation_base.extend([
-                {"role": "user", "content": item[0]},
-                {"role": "assistant", "content": json.dumps(item[1], ensure_ascii=False)}
-            ])
-
-        requests = []
-        for d in dataset_entries_list:
-            conversation = conversation_base.copy()
-            requests.append({
-                "custom_id": d["ID"],
-                "method": "POST",
-                "url": "/v1/chat/completions",
-                "body": {
-                    "model": model_name,
-                    "messages": conversation + [{
-                        "role": "user",
-                        "content": d["Text"]
-                    }],
-                    "provider": {
-                        "data_collection": "allow",
-                        "allow_fallbacks": False 
-                    },
-                    "stream": False, 
-                }
-            })
-
-        return requests
-
-    except Exception as e:
-        logger.error(f"The following error occurred while preparing the requests: {e}")
         return None
+        
+# def are_all_values_extracted_from_text(response_json: dict, text: str, _id: str) -> bool:
+#     """Returns True if all values are extracted from the text, False otherwise.
+    
+#     Values are strings, lists or dicts. Acts recursively for lists and dicts.
+#     """
+#     for key, value in response_json.items():
+#         if isinstance(value, str):
+#             if value not in " ".join([x.strip() for x in text.split()]):
+#                 logger.warning(f"Item '{value}' for key '{key}' not found in text. ID: {_id}.")
+#                 return False
+#         elif isinstance(value, list):
+#             for item in value:
+#                 if isinstance(item, (str, int, float)):
+#                     if str(item) not in " ".join([x.strip() for x in text.split()]):
+#                         logger.warning(f"List item '{item}' for key '{key}' not found in text. ID: {_id}")
+#                         return False
+#                 elif isinstance(item, dict):
+#                     if not are_all_values_extracted_from_text(item, text, _id):
+#                         return False
+#                 else:
+#                     logger.warning(f"Unsupported list item type for key '{key}': {type(item)}, ID: {_id}")
+#                     return False
+#         elif isinstance(value, dict):
+#             if not are_all_values_extracted_from_text(value, text, _id):
+#                 return False
+#         else:
+#             logger.warning(f"Unsupported value type for key '{key}': {type(value)}")
+#             return False
+#     return True
+
+def create_conversation(cv_text: str) -> List[Dict[str, Any]]:
+    few_shot_examples = [
+        (EXAMPLE_1, RESPONSE_1),
+        (EXAMPLE_2, RESPONSE_2)
+    ]
+    conversation_base = [{"role": "system", "content": SYSTEM_PROMPT}]
+    for item in few_shot_examples:
+        conversation_base.extend([
+            {"role": "user", "content": item[0]},
+            {"role": "assistant", "content": json.dumps(item[1], ensure_ascii=False)}
+        ])
+
+    return conversation_base + [{
+        "role": "user",
+        "content": cv_text
+    }]
 
 def fill_dataset(
     dataset_entries_list: List[dict],
@@ -196,33 +201,49 @@ def fill_dataset(
     config = CONFIG[model_key]
     client = OpenAI(api_key=config["api_key"], base_url=config["base_url"])
 
-    def send_request(cv_dict: dict) -> dict:
-        ret_dict = cv_dict.copy()
+    def send_request(row_dict: dict) -> dict:
+        ret_dict = row_dict.copy()
 
         # Apply rate limiting before making the request
         if rpm_limit:
-            rate_limiter.wait_if_needed(model_name, rpm_limit, min_interval=1.0)
+            rate_limiter.wait_if_needed(model_name, rpm_limit, min_interval=0.5)
 
-        conversation = create_batch_requests(
-            [cv_dict],
-            model_name, 
-        )[0]["body"]["messages"]
+        conversation = create_conversation(row_dict["Text"])
         
-        max_retries = 5
+        max_retries = 2
         base_delay = 5
-        
         for attempt in range(max_retries):
             try:
                 response = client.chat.completions.create(
                     model=model_name,
                     messages=conversation,
                     extra_body={
-                        "provider": {
-                            "only": config["providers"]
-                        }
-                    } if "providers" in config else {}
+                        "usage": {"include": True},
+                        **({
+                            "provider": {
+                                "only": config["providers"]
+                            }
+                        } if "providers" in config else {})
+                    }
                 )
                 response_json = extract_json_from_response(response.choices[0].message.content)
+                if not response_json:
+                    continue
+
+                # if not are_all_values_extracted_from_text(response_json, row_dict["Text"], row_dict["ID"]):
+                #     print(response_json)
+                #     print("****************************")
+                #     conversation += [{
+                #         "role": "user",
+                #         "content": (
+                #             "Some value-strings are not extracted from the CV. "
+                #             "Respond with a JSON where all non-empty strings are "
+                #             "*extracted* from the CV. Do not provide any "
+                #             "additional information."
+                #         )
+                #     }]
+                #     continue  
+
                 ret_dict["timestamp"] = pendulum.now("Europe/Athens").strftime("%Y-%m-%d %H:%M:%S")
                 
                 ret_dict["json"] = response_json
@@ -234,7 +255,7 @@ def fill_dataset(
                 if "404" in error_str and attempt < max_retries - 1:
                     delay = min(300, base_delay * (2 ** attempt))
                     logger.warning(
-                        f"Provider unavailable (404) for {cv_dict['ID']}, retrying in "
+                        f"Provider unavailable (404) for {row_dict['ID']}, retrying in "
                         f"{delay:.1f}s (attempt {attempt + 1}/{max_retries})"
                     )
                     time.sleep(delay)
@@ -271,8 +292,8 @@ def fill_dataset(
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_cv = {
-            executor.submit(send_request, cv_dict): cv_dict
-            for cv_dict in dataset_entries_list
+            executor.submit(send_request, row_dict): row_dict
+            for row_dict in dataset_entries_list
         }
         # Process results as they complete
         for future in concurrent.futures.as_completed(future_to_cv):
@@ -283,13 +304,13 @@ def fill_dataset(
                     if not result["json"]:
                         logger.warning(f"Failed: {result['ID']}")
             except concurrent.futures.TimeoutError:
-                cv_dict = future_to_cv[future]
-                logger.error(f"Timeout processing {cv_dict['ID']}")
-                results.append({"ID": cv_dict["ID"], "json": None})
+                row_dict = future_to_cv[future]
+                logger.error(f"Timeout processing {row_dict['ID']}")
+                results.append({"ID": row_dict["ID"], "json": None})
             except Exception as e:
-                cv_dict = future_to_cv[future]
-                logger.error(f"Failed processing {cv_dict['ID']}: {e}")
-                results.append({"ID": cv_dict["ID"], "json": None})
+                row_dict = future_to_cv[future]
+                logger.error(f"Failed processing {row_dict['ID']}: {e}")
+                results.append({"ID": row_dict["ID"], "json": None})
 
             if len(results) >= return_every:
                 yield results
@@ -301,9 +322,9 @@ def fill_dataset(
 
 def main():
     parser = argparse.ArgumentParser(description="Extract metadata from headers using LLM.")
-    parser.add_argument("--model_index", type=int, default=1, help="Index of the model to use from the MODELS list.")
-    parser.add_argument("--number_limit", type=int, default=1, help="Number of headers to process in this run.")
-    parser.add_argument("--rpm_limit", type=int, default=200)
+    parser.add_argument("--model_index", type=int, default=-2, help="Index of the model to use from the MODELS list.")
+    parser.add_argument("--number_limit", type=int, default=100000, help="Number of headers to process in this run.")
+    parser.add_argument("--rpm_limit", type=int, default=500)
     args = parser.parse_args()
 
     MODELS = [
@@ -318,7 +339,7 @@ def main():
     logger.info(f"Using model: {model_name}")
 
     with open(
-        os.path.join(PROJECT_ROOT, "data/Dataset.json"), 
+        os.path.join(PROJECT_ROOT, "data/preprocessed_dataset.json"), 
         "rb"
     ) as f:
         input: list[dict] = json.load(f)
@@ -359,7 +380,7 @@ def main():
         dataset_entries_list=entries_to_process,
         model_name=model_name,
         rpm_limit=args.rpm_limit,
-        return_every=50
+        return_every=10
     ):
         if not new_filled_entries:
             logger.info("No new filled entries")

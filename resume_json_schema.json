@@ -9,7 +9,7 @@
       "state": "string",
       "country": "string"
     },
-    "urls": ["string"]
+    "personal_urls": ["string"]
   },
   "about_info": "string",
   "work_experience": [
