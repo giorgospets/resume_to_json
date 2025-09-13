@@ -141,7 +141,7 @@ RESPONSE_1 = {
       "company": "Denver Public Schools",
       "employment_type": "Part-time",
       "location": "Denver, CO",
-      "start_date": "Aug 2016",
+      "start_date": "2016-08",
       "end_date": "present",
       "details": [
         "Execute lesson plans provided by the regular teacher to ensure continuity of learning across various subjects and grade levels.",
@@ -156,8 +156,8 @@ RESPONSE_1 = {
       "company": "Colorado Community Health Network",
       "employment_type": "Full-time",
       "location": "Denver, CO",
-      "start_date": "Jun 2014",
-      "end_date": "Jul 2016",
+      "start_date": "2014-06",
+      "end_date": "2016-07",
       "details": [
         "Developed and maintained positive relationships with community leaders, local businesses, and partner organizations.",
         "Coordinated and promoted community events, workshops, and health fairs to increase program visibility and participation.",
@@ -171,8 +171,8 @@ RESPONSE_1 = {
       "company": "BrightPath Solutions",
       "employment_type": "Full-time",
       "location": "Boulder, CO",
-      "start_date": "Apr 2010",
-      "end_date": "May 2014",
+      "start_date": "2010-04",
+      "end_date": "2014-05",
       "details": [
         "Managed a portfolio of over 50 key client accounts, ensuring high levels of satisfaction and retention.",
         "Acted as the main liaison between clients and internal teams to guarantee the timely and successful delivery of our solutions.",
@@ -186,8 +186,8 @@ RESPONSE_1 = {
       "company": "Summit Financial Services",
       "employment_type": "Full-time",
       "location": "Aurora, CO",
-      "start_date": "Sep 2006",
-      "end_date": "Apr 2010",
+      "start_date": "2006-09",
+      "end_date": "2010-04",
       "details": [
         "Supervised the daily operations of a 15-person customer service team.",
         "Monitored call metrics and individual performance to ensure quality and productivity standards were met.",
@@ -204,7 +204,7 @@ RESPONSE_1 = {
       "institution": "University of Colorado Boulder",
       "location": "Boulder, CO",
       "start_date": "",
-      "end_date": "2010",
+      "end_date": "2010-01",
       "grade_or_gpa": ""
     },
     {
@@ -213,7 +213,7 @@ RESPONSE_1 = {
       "institution": "Front Range Community College",
       "location": "Westminster, CO",
       "start_date": "",
-      "end_date": "2007",
+      "end_date": "2007-05",
       "grade_or_gpa": ""
     }
   ],

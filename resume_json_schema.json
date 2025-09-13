@@ -7,12 +7,9 @@
     "location": {
       "city": "string",
       "state": "string",
-      "country": "string",
-      "postal_code": "string"
+      "country": "string"
     },
-    "linkedin_url": "string",
-    "website_or_portfolio": "string",
-    "github_url": "string"
+    "urls": ["string"]
   },
   "about_info": "string",
   "work_experience": [
@@ -21,9 +18,9 @@
       "company": "string",
       "employment_type": "string", 
       "location": "string",
-      "start_date": "YYYY-MM",
-      "end_date": "YYYY-MM or 'present'",
-      "achievements": ["string"]
+      "start_date": "string",
+      "end_date": "string",
+      "details": ["string"]
     }
   ],
   "education": [
@@ -32,8 +29,8 @@
       "field_of_study": "string",
       "institution": "string",
       "location": "string",
-      "start_date": "YYYY-MM",
-      "end_date": "YYYY-MM",
+      "start_date": "string",
+      "end_date": "string",
       "grade_or_gpa": "string"
     }
   ],
@@ -41,8 +38,8 @@
     {
       "name": "string",
       "issuing_organization": "string",
-      "issue_date": "YYYY-MM",
-      "expiration_date": "YYYY-MM or 'does not expire'",
+      "issue_date": "string",
+      "expiration_date": "string",
       "credential_id": "string",
       "credential_url": "string"
     }
@@ -64,8 +61,8 @@
       "description": "string",
       "technologies_used": ["string"],
       "role": "string",
-      "start_date": "YYYY-MM",
-      "end_date": "YYYY-MM",
+      "start_date": "string",
+      "end_date": "string",
       "project_url": "string"
     }
   ],
@@ -73,7 +70,7 @@
     {
       "title": "string",
       "publisher": "string",
-      "publication_date": "YYYY-MM",
+      "publication_date": "string",
       "url": "string",
       "description": "string"
     }
@@ -82,7 +79,7 @@
     {
       "title": "string",
       "issuer": "string",
-      "date": "YYYY-MM",
+      "date": "string",
       "description": "string"
     }
   ],
@@ -91,8 +88,8 @@
       "role": "string",
       "organization": "string",
       "location": "string",
-      "start_date": "YYYY-MM",
-      "end_date": "YYYY-MM or 'present'",
+      "start_date": "string",
+      "end_date": "string",
       "description": "string"
     }
   ]
