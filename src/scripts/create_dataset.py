@@ -45,9 +45,10 @@ CONFIG = {
         "top_p": 0.95,
         "base_url": "https://openrouter.ai/api/v1",
         "api_key": os.getenv("OPENROUTER_API_KEY"),
-        # "providers": [
-        #     "deepinfra/turbo"
-        # ]
+        "providers": [
+            "deepinfra/turbo",
+            "crusoe/int8"
+        ]
     },
     "qwen": {
         "temperature": 0.7,
@@ -138,6 +139,9 @@ rate_limiter = RateLimiter()
 def extract_json_from_response(response: str) -> dict | None:
     """Extracts a JSON object from a model's string response."""
     try:
+        # Remove ```json. ...``` tags
+        if "```json" in response:
+            response = response.replace("```json", "").replace("```", "").strip()
         return json.loads(response.strip())
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding JSON from response: {e}\nResponse was: {response}")
@@ -206,7 +210,7 @@ def fill_dataset(
 
         # Apply rate limiting before making the request
         if rpm_limit:
-            rate_limiter.wait_if_needed(model_name, rpm_limit, min_interval=0.5)
+            rate_limiter.wait_if_needed(model_name, rpm_limit, min_interval=0.05)
 
         conversation = create_conversation(row_dict["Text"])
         
@@ -322,9 +326,9 @@ def fill_dataset(
 
 def main():
     parser = argparse.ArgumentParser(description="Extract metadata from headers using LLM.")
-    parser.add_argument("--model_index", type=int, default=-2, help="Index of the model to use from the MODELS list.")
+    parser.add_argument("--model_index", type=int, default=2, help="Index of the model to use from the MODELS list.")
     parser.add_argument("--number_limit", type=int, default=100000, help="Number of headers to process in this run.")
-    parser.add_argument("--rpm_limit", type=int, default=500)
+    parser.add_argument("--rpm_limit", type=int, default=1000)
     args = parser.parse_args()
 
     MODELS = [
@@ -380,7 +384,7 @@ def main():
         dataset_entries_list=entries_to_process,
         model_name=model_name,
         rpm_limit=args.rpm_limit,
-        return_every=10
+        return_every=50
     ):
         if not new_filled_entries:
             logger.info("No new filled entries")
@@ -394,7 +398,7 @@ def main():
 
         logger.info(
             f"Total processed: {len(existing_dataset)}/"
-            f"{len(entries_to_process)}"
+            f"{len(entries_to_process) + len(existing_dataset)}"
         )
 
     logger.info("Finished processing all batches")
@@ -402,3 +406,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

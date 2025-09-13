@@ -26,7 +26,7 @@ EXAMPLE_1 = """COMMUNITY OUTREACH COORDINATOR
 Contact Information
 GitHub: www.github.com/sd12k
 email: sdk@gmail.com
-\in linkedin.com/in/sdk-coordinator
+\\in linkedin.com/in/sdk-coordinator
 
 LINKS\nTwitter, Linkedin\n
 
