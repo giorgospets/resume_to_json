@@ -95,17 +95,5 @@
       "end_date": "YYYY-MM or 'present'",
       "description": "string"
     }
-  ],
-  "preferences": {
-    "desired_job_titles": ["string"],
-    "desired_locations": ["string"],
-    "remote_work": "boolean",
-    "salary_expectations": {
-      "currency": "string",
-      "minimum": "number",
-      "maximum": "number",
-      "period": "string"
-    },
-    "notice_period": "string"
-  }
+  ]
 }

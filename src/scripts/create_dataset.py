@@ -149,7 +149,7 @@ def create_batch_requests(
     try:
         few_shot_examples = [
             (EXAMPLE_1, RESPONSE_1),
-            (EXAMPLE_2, RESPONSE_2)
+            # (EXAMPLE_2, RESPONSE_2)
         ]
         conversation_base = [{"role": "system", "content": SYSTEM_PROMPT}]
         for item in few_shot_examples:
@@ -167,10 +167,10 @@ def create_batch_requests(
                 "url": "/v1/chat/completions",
                 "body": {
                     "model": model_name,
-                    "messages": conversation.append({
+                    "messages": conversation + [{
                         "role": "user",
-                        "content": d["Resume_md"]
-                    }),
+                        "content": d["Text"]
+                    }],
                     "provider": {
                         "data_collection": "allow",
                         "allow_fallbacks": False 
@@ -318,12 +318,12 @@ def main():
     logger.info(f"Using model: {model_name}")
 
     with open(
-        os.path.join(PROJECT_ROOT, "data/preprocessed_dataset.json"), 
+        os.path.join(PROJECT_ROOT, "data/Dataset.json"), 
         "rb"
     ) as f:
         input: list[dict] = json.load(f)
 
-    output_filepath = os.path.join(PROJECT_ROOT, "data/dataset.json")
+    output_filepath = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
 
     try:
         with open(output_filepath) as f:

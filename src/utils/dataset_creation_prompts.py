@@ -7,14 +7,14 @@ load_dotenv()
 
 PROJECT_ROOT = os.getenv("PROJECT_ROOT")
 
-with open(os.path.join(PROJECT_ROOT), "resume_json_schema.json") as f:
+with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
     json_schema = json.load(f)
 
-SYSTEM_PROMPT = f"""You are an expert in converting CVs to JSON format based on the following JSON schema: {json_schema}
+SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs to JSON format based on the following JSON schema: {json.dumps(json_schema)}
 
 ##### RULES:
 - Always respond with a valid JSON; do not provide any extra information.
-- 
+- Missing informations should be noted either as "" or [], depending on the JSON schema.
 """
 
 EXAMPLE_1 = """COMMUNITY OUTREACH COORDINATOR
@@ -129,7 +129,6 @@ RESPONSE_1 = {
       "city": "",
       "state": "",
       "country": "",
-      "postal_code": ""
     },
     "linkedin_url": "",
     "website_or_portfolio": "",
@@ -270,18 +269,6 @@ RESPONSE_1 = {
     }
   ],
   "volunteer_experience": [],
-  "preferences": {
-    "desired_job_titles": [],
-    "desired_locations": [],
-    "remote_work": False ,
-    "salary_expectations": {
-      "currency": "",
-      "minimum": None,
-      "maximum": None,
-      "period": ""
-    },
-    "notice_period": ""
-  }
 }
 
 EXAMPLE_2 = """"""
