@@ -15,7 +15,7 @@ def download_dataset():
     data_dir.mkdir(exist_ok=True)
     
     # Output file path
-    output_file = data_dir / "Dataset.json"
+    output_file = data_dir / "dataset.json"
     
     try:
         print("Downloading dataset")
