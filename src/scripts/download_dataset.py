@@ -4,18 +4,7 @@ from pathlib import Path
 from io import StringIO
 
 
-def clean_text(text: str) -> str:
-    text = text.replace("\ufeff________________\r\n\r\n", "")
-    text = text.replace("\u00ef\u00bb\u00bf________________\r\n\r\n", "")
-    text = text.replace("\r\n", "\n")
-
-    # Remove non-ASCII characters
-    text = text.encode('ascii', 'ignore').decode('ascii')
-
-    return text
-
-
-def download_and_convert_dataset():
+def download_dataset():
     """Download CSV dataset and convert to JSON format"""
     
     # Dataset URL
@@ -35,14 +24,6 @@ def download_and_convert_dataset():
         
         df = pd.read_csv(StringIO(response.text))
         
-        df["Text"] = df["Text"].apply(clean_text)
-
-        df['ID'] = df.index
-
-        # Reorder columns to put ID first
-        cols = ['ID'] + [col for col in df.columns if col != 'ID']
-        df = df[cols]
-        
         # Convert to JSON
         json_data = df.to_json(orient='records', indent=2)
         
@@ -52,9 +33,6 @@ def download_and_convert_dataset():
         
         print(f"Dataset successfully saved to: {output_file}")
         print(f"Dataset contains {len(df)} records with columns: {list(df.columns)}")
-
-        df = pd.read_json(output_file)
-        print(df.head())
         
     except requests.RequestException as e:
         print(f"Error downloading dataset: {e}")
@@ -62,4 +40,5 @@ def download_and_convert_dataset():
         print(f"Error processing dataset: {e}")
 
 if __name__ == "__main__":
-    download_and_convert_dataset()
+    download_dataset()
+    
