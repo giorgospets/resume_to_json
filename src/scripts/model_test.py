@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from typing import Any, Optional
 import os
 from dotenv import load_dotenv
+from utils.training_utils import MAX_SEQ_LENGTH
 
 load_dotenv()
 
@@ -72,7 +73,7 @@ def main():
 
 
     DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/test_structured_dataset.json")
-    OUTPUT_JSON_FILEPATH = os.path.join(PROJECT_ROOT, f"data/test_results_{args.model_name}.json")
+    OUTPUT_JSON_FILEPATH = os.path.join(PROJECT_ROOT, f"data/test_results_{args.model_name.split("/")[1].split("/")[0]}.json")
 
     result_dict = {}
 
@@ -84,6 +85,7 @@ def main():
     llm = LLM(
         model=finetuned_lora_model_dir_16_bit,
         dtype="auto",
+        max_seq_len_to_capture=MAX_SEQ_LENGTH
     )
     tokenizer = AutoTokenizer.from_pretrained(finetuned_lora_model_dir_16_bit)
 
@@ -115,7 +117,7 @@ def main():
     outputs = llm.generate(batch_prompts, sampling_params)
 
     for i, output in enumerate(outputs):
-        generated_text = output.outputs[0].text.split("json")[1].strip()
+        generated_text = output.outputs[0].text.strip()
         result_dict[i]["pred_json"] = generated_text
 
     print(f"Saving results to {OUTPUT_JSON_FILEPATH}")
