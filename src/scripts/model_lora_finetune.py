@@ -64,7 +64,7 @@ def format_prompts(
     # If creating a training example, add the assistant's correct response
     if training_bool:
         # Use a JSON markdown block for the ground truth, which is standard practice.
-        assistant_response = f"```json\n{ground_truth_json}\n```"
+        assistant_response = ground_truth_json
         messages.append({"role": "assistant", "content": assistant_response})
 
     # The tokenizer's template handles the specific formatting for the model
