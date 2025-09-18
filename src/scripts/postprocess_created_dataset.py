@@ -56,12 +56,15 @@ def fill_json_schema(schema, data):
 
 indices_to_remove = []
 for idx, datapoint in enumerate(dataset):
-    print('===========================')
     if datapoint['json'] is None:
         indices_to_remove.append(idx)
     datapoint['json'] = fill_json_schema(json_schema, datapoint['json'])
 
 dataset = [val for idx, val in enumerate(dataset) if idx not in indices_to_remove]
+
+with open(MODIFIED_DATASET_DICT_FILEPATH, "w") as f:
+    json.dump(dataset, f)
+
 
 
 print('ok')
