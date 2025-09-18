@@ -348,7 +348,7 @@ def main():
     ) as f:
         input: list[dict] = json.load(f)
 
-    output_filepath = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
+    output_filepath = os.path.join(PROJECT_ROOT, "data/orig_structured_dataset.json")
 
     try:
         with open(output_filepath) as f:

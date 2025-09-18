@@ -12,7 +12,7 @@ import random
 random.seed(42)
 
 PROJECT_ROOT = os.getenv("PROJECT_ROOT")
-DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
+DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/orig_structured_dataset.json")
 
 # Load the dataset
 with open(DATASET_DICT_FILEPATH, "r") as f:

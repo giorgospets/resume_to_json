@@ -10,4 +10,6 @@ python ./src/scripts/preprocess_dataset.py
 
 python ./src/scripts/create_dataset.py
 
+python ./src/scripts/postprocess_created_dataset.py
+
 python ./src/scripts/split_dataset.py
