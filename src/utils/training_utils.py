@@ -22,44 +22,49 @@ with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
 MAX_SEQ_LENGTH = 8192
 
 
+
+def format_prompts(
+    system_prompt: str,
+    cv_input: str,
+    tokenizer: Any,
+    ground_truth_json: Optional[str] = None,
+    training_bool: bool = False
+) -> str:
+    """
+    Formats the input CV and ground truth JSON into a
+    structured conversation format using the tokenizer's chat template.
+    """
+    # Construct the message list for the chat template
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": cv_input},
+    ]
+
+    # If creating a training example, add the assistant's correct response
+    if training_bool:
+        messages.append({"role": "assistant", "content": ground_truth_json})
+
+    formatted_conv = tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=not training_bool,
+    )
+    return formatted_conv
+
 def create_resume_dataset(
     data: List[Dict[str, Any]], 
     tokenizer: Any,
     system_prompt: str,
+    training_bool: bool = True
 ) -> Dataset:
     """
     Prepares a resume dataset for fine-tuning by applying the chat template
     via the `format_prompts` function.
     """
-    def format_prompts(
-        system_prompt: str,
-        cv_input: str,
-        tokenizer: Any,
-        ground_truth_json: Optional[str] = None,
-        training_bool: bool = False
-    ) -> str:
-        """
-        Formats the input CV and ground truth JSON into a
-        structured conversation format using the tokenizer's chat template.
-        """
-        # Construct the message list for the chat template
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": cv_input},
-        ]
-
-        # If creating a training example, add the assistant's correct response
-        if training_bool:
-            messages.append({"role": "assistant", "content": ground_truth_json})
-
-        formatted_conv = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=not training_bool,
-        )
-        return formatted_conv
-
-    def format_examples(examples: Dict[str, List]) -> Dict[str, List[str]]:
+    def format_examples(
+        examples: Dict[str, List],
+        training_bool: bool = True
+    ) -> Dict[str, List[str]]:
         """Applies the prompt formatting to a batch of examples."""
         texts = []
         for i in range(len(examples["Text"])):
@@ -72,7 +77,7 @@ def create_resume_dataset(
                 cv_input=cv_text,
                 ground_truth_json=json_output,
                 tokenizer=tokenizer,
-                training_bool=True
+                training_bool=training_bool,
             )
             texts.append(formatted_text)
 
@@ -86,6 +91,7 @@ def create_resume_dataset(
     formatted_dataset = dataset.map(
         format_examples,
         batched=True,
+        fn_kwargs={"training_bool": training_bool},
         remove_columns=dataset.column_names,
     )
     return formatted_dataset.filter(filter_long_sequences)

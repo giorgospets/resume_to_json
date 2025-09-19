@@ -6,6 +6,7 @@ from typing import Any, Optional
 import os
 from dotenv import load_dotenv
 from utils.training_utils import MAX_SEQ_LENGTH
+from utils.training_utils import format_prompts
 
 load_dotenv()
 
@@ -14,53 +15,7 @@ MODELS_PATH = os.path.join(PROJECT_ROOT, "models")
 with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
     json_schema = json.load(f)
 
-SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and responding with a JSON using the following JSON schema: {json.dumps(json_schema)}
-
-##### RULES:
-- Always respond with a valid JSON; do not provide any extra information.
-- Information should be **extracted** from the CV: All characters should remain the same, even whitespace characters. Paraphrasing, implying are not allowed.
-- Only fill values if the information can be found within the CV. 
-- Missing information should be noted either as "" or [], depending on the JSON schema.
-- Personal urls can be urls for the person's linkdenin, github, personal page etc. Urls should be in valid url format; e.g. The following is a valid personal_url: linkedin.com/in/cristiano-ronaldo/. The following are *not* valid personal_url's: LinkedIn, Twitter, in LinkedIn (because they contain no personal information).
-"""
-
-USER_PROMPT = """##### CV:
-<cv>{}</cv>
-"""
-
-
-def format_prompts(
-        cv_input: str,
-        tokenizer: Any,
-        ground_truth_json: Optional[str] = None,
-        training_bool: bool = False
-) -> str:
-    """
-    Formats the input CV and ground truth JSON into a
-    structured conversation format using the tokenizer's chat template.
-    """
-    # Create a string from the list of documents, or "None" if it's empty.
-
-    # Construct the message list for the chat template
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": USER_PROMPT.format(cv_input)},
-    ]
-
-    # If creating a training example, add the assistant's correct response
-    if training_bool:
-        # Use a JSON markdown block for the ground truth, which is standard practice.
-        assistant_response = f"```json\n{ground_truth_json}\n```"
-        messages.append({"role": "assistant", "content": assistant_response})
-
-    # The tokenizer's template handles the specific formatting for the model
-    # (e.g., adding special tokens like <|start_header_id|>).
-    formatted_conv = tokenizer.apply_chat_template(
-        messages,
-        tokenize=False,
-        add_generation_prompt=not training_bool,
-    )
-    return formatted_conv
+SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and responding with a JSON using the following JSON schema: {json.dumps(json_schema)}"""
 
 
 def main():
@@ -68,7 +23,7 @@ def main():
 
     parser = ArgumentParser()
 
-    parser.add_argument("--model_name", default="finetuned_gemma-3-1b-it-unsloth-bnb-4bit-lora-16bit", type=str)
+    parser.add_argument("--model_name", default="finetuned_gemma-3-1b-it-4bit", type=str)
     args = parser.parse_args()
 
 
@@ -109,8 +64,10 @@ def main():
         }
 
         formatted_prompt = format_prompts(
+            system_prompt=SYSTEM_PROMPT,
             cv_input=data_point["Text"],
             tokenizer=tokenizer,
+            training_bool=False
         )
         batch_prompts.append(formatted_prompt)
 
