@@ -69,7 +69,7 @@ def remove_empty_json(dataset: list[dict]) -> dict:
     """Remove entries with empty json"""
     indices_to_remove = []
     for idx, datapoint in enumerate(dataset):
-        if datapoint['json'] is None:
+        if not datapoint['json']:
             indices_to_remove.append(idx)
 
     return [val for idx, val in enumerate(dataset) if idx not in indices_to_remove]
@@ -87,10 +87,10 @@ if __name__ == "__main__":
 
     dataset = remove_empty_json(dataset)
 
-    indices_to_remove = []
     for datapoint in dataset:
         datapoint['json'] = fill_json_schema(json_schema, datapoint['json'])
-
+        datapoint['json'] = json.dumps(datapoint['json'])
+        
     with open(MODIFIED_DATASET_DICT_FILEPATH, "w") as f:
         json.dump(dataset, f)
 

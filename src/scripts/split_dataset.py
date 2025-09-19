@@ -50,3 +50,4 @@ if __name__ == "__main__":
     print(f"Test samples: {len(test_data)}")
     print(f"Train file saved to: {train_filepath}")
     print(f"Test file saved to: {test_filepath}")
+    print(f"Val set saved to: {val_filepath}")
