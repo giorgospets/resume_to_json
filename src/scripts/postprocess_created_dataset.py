@@ -1,18 +1,11 @@
+"""Post-process the created dataset to ensure all JSON objects conform to the schema."""
+
 import json
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-PROJECT_ROOT = os.getenv("PROJECT_ROOT")
-DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/orig_structured_dataset.json")
-MODIFIED_DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
-
-with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
-    json_schema = json.load(f)
-
-with open(DATASET_DICT_FILEPATH, "r") as f:
-    dataset = json.load(f)
 
 def fill_json_schema(schema, data):
     if not isinstance(data, dict):
@@ -51,20 +44,47 @@ def fill_json_schema(schema, data):
                             filled_data[key][i] = fill_json_schema(item_schema, filled_data[key][i])
                         else:
                             print(f"Warning: Item at index {i} in list '{key}' is not a dictionary as expected by the schema.")
-                            filled_data[key][i] = {} # Replace with an empty dictionary to conform to the schema
+                            filled_data[key][i] = {}
     return filled_data
 
-indices_to_remove = []
-for idx, datapoint in enumerate(dataset):
-    if datapoint['json'] is None:
-        indices_to_remove.append(idx)
-    datapoint['json'] = fill_json_schema(json_schema, datapoint['json'])
+def clean_non_url_string(json: dict) -> dict:
+    """Remove non-URL strings from the personal_urls field in personal_information."""
+    def is_url_valid(url: str) -> bool:
+        if len(url.split()) > 1:
+            return False
+        for st in [".com", "http", "www"]:
+            if st in url:
+                return True
+        return False
+        
+    valid_urls = [] 
+    for url in json.get("personal_information", {}).get("personal_urls", []):
+        if is_url_valid(url):
+            valid_urls.append(url)
 
-dataset = [val for idx, val in enumerate(dataset) if idx not in indices_to_remove]
+    json["personal_information"]["personal_urls"] = valid_urls
+    return json
 
-with open(MODIFIED_DATASET_DICT_FILEPATH, "w") as f:
-    json.dump(dataset, f)
+if __name__ == "__main__":
+    PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+    DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/orig_structured_dataset.json")
+    MODIFIED_DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
 
+    with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
+        json_schema = json.load(f)
 
+    with open(DATASET_DICT_FILEPATH, "r") as f:
+        dataset = json.load(f)
 
-print('ok')
+    indices_to_remove = []
+    for idx, datapoint in enumerate(dataset):
+        if datapoint['json'] is None:
+            indices_to_remove.append(idx)
+        datapoint['json'] = fill_json_schema(json_schema, datapoint['json'])
+
+    dataset = [val for idx, val in enumerate(dataset) if idx not in indices_to_remove]
+
+    with open(MODIFIED_DATASET_DICT_FILEPATH, "w") as f:
+        json.dump(dataset, f)
+
+    print("finished")

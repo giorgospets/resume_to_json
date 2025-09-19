@@ -1,51 +1,52 @@
+
+"""Split the structured dataset into training and testing sets and save them as separate JSON files."""
+
 import json
-from dotenv import load_dotenv
 import os
+import os
+import json
+from sklearn.model_selection import train_test_split
+from dotenv import load_dotenv
+
 load_dotenv()
 
-PROJECT_ROOT = os.getenv("PROJECT_ROOT")
-import os
-import json
-import random
 
-# Set seed for reproducibility
-random.seed(42)
+if __name__ == "__main__":
+    PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+    DATASET_FILEPATH = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
+    PARENT_DIR = os.path.dirname(DATASET_FILEPATH)
 
-PROJECT_ROOT = os.getenv("PROJECT_ROOT")
-DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/orig_structured_dataset.json")
+    with open(DATASET_FILEPATH, "r") as f:
+        dataset = json.load(f)
 
-# Load the dataset
-with open(DATASET_DICT_FILEPATH, "r") as f:
-    dataset_dict = json.load(f)
+    train_val_data, test_data = train_test_split(
+        dataset, 
+        test_size=100, 
+        random_state=42
+    )
 
-# Process the data as in your original code
-for datapoint in dataset_dict:
-    datapoint['json'] = json.dumps(datapoint['json'])
+    train_data, val_data = train_test_split(
+        train_val_data, 
+        test_size=100, 
+        random_state=42
+    )
 
-# Shuffle the dataset
-random.shuffle(dataset_dict)
+    train_filepath = os.path.join(PARENT_DIR, "train_structured_dataset.json")
+    test_filepath = os.path.join(PARENT_DIR, "test_structured_dataset.json")
+    val_filepath = os.path.join(PARENT_DIR, "val_structured_dataset.json")
 
-# Split into train and test (150 samples for test)
-test_size = 150
-train_data = dataset_dict[:-test_size]
-test_data = dataset_dict[-test_size:]
+    with open(train_filepath, "w") as f:
+        json.dump(train_data, f, indent=2)
 
-# Get the parent directory of the original file
-parent_dir = os.path.dirname(DATASET_DICT_FILEPATH)
+    with open(val_filepath, "w") as f:
+        json.dump(val_data, f, indent=2)
 
-# Save train and test files
-train_filepath = os.path.join(parent_dir, "train_structured_dataset.json")
-test_filepath = os.path.join(parent_dir, "test_structured_dataset.json")
+    with open(test_filepath, "w") as f:
+        json.dump(test_data, f, indent=2)
 
-with open(train_filepath, "w") as f:
-    json.dump(train_data, f, indent=2)
-
-with open(test_filepath, "w") as f:
-    json.dump(test_data, f, indent=2)
-
-print(f"Dataset split completed!")
-print(f"Total samples: {len(dataset_dict)}")
-print(f"Train samples: {len(train_data)}")
-print(f"Test samples: {len(test_data)}")
-print(f"Train file saved to: {train_filepath}")
-print(f"Test file saved to: {test_filepath}")
+    print(f"Dataset split completed!")
+    print(f"Total samples: {len(dataset)}")
+    print(f"Train samples: {len(train_data)}")
+    print(f"Test samples: {len(test_data)}")
+    print(f"Train file saved to: {train_filepath}")
+    print(f"Test file saved to: {test_filepath}")
