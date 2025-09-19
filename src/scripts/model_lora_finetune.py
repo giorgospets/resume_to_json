@@ -67,7 +67,7 @@ if __name__ == "__main__":
         per_device_train_batch_size=12,
         gradient_accumulation_steps=24,
         warmup_ratio=0.05,
-        num_train_epochs=1,
+        num_train_epochs=4,
         learning_rate=2e-4,
         fp16=not is_bfloat16_supported(),
         bf16=is_bfloat16_supported(),
