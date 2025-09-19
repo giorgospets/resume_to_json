@@ -65,24 +65,30 @@ def clean_non_url_string(json: dict) -> dict:
     json["personal_information"]["personal_urls"] = valid_urls
     return json
 
+def remove_empty_json(dataset: list[dict]) -> dict:
+    """Remove entries with empty json"""
+    for idx, datapoint in enumerate(dataset):
+        if datapoint['json'] is None:
+            indices_to_remove.append(idx)
+
+    return [val for idx, val in enumerate(dataset) if idx not in indices_to_remove]
+
 if __name__ == "__main__":
     PROJECT_ROOT = os.getenv("PROJECT_ROOT")
     DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/orig_structured_dataset.json")
     MODIFIED_DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/structured_dataset.json")
 
     with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
-        json_schema = json.load(f)
+        json_schema: dict = json.load(f)
 
     with open(DATASET_DICT_FILEPATH, "r") as f:
-        dataset = json.load(f)
+        dataset: list[dict] = json.load(f)
+
+    dataset = remove_empty_json(dataset)
 
     indices_to_remove = []
-    for idx, datapoint in enumerate(dataset):
-        if datapoint['json'] is None:
-            indices_to_remove.append(idx)
+    for datapoint in dataset:
         datapoint['json'] = fill_json_schema(json_schema, datapoint['json'])
-
-    dataset = [val for idx, val in enumerate(dataset) if idx not in indices_to_remove]
 
     with open(MODIFIED_DATASET_DICT_FILEPATH, "w") as f:
         json.dump(dataset, f)
