@@ -67,6 +67,7 @@ def clean_non_url_string(json: dict) -> dict:
 
 def remove_empty_json(dataset: list[dict]) -> dict:
     """Remove entries with empty json"""
+    indices_to_remove = []
     for idx, datapoint in enumerate(dataset):
         if datapoint['json'] is None:
             indices_to_remove.append(idx)
