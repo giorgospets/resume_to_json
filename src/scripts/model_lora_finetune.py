@@ -21,15 +21,7 @@ from utils.training_utils import (
 
 load_in_4bit = True
 
-SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and responding with a JSON using the following JSON schema: {json.dumps(JSON_SCHEMA)}
-
-
-##### RULES:
-- Always respond with a valid JSON; do not provide any extra information.
-- Information should be **extracted** from the CV: All characters should remain the same, even whitespace characters. Paraphrasing, implying are not allowed.
-- Only fill values if the information can be found within the CV. 
-- Missing information should be noted either as "" or [], depending on the JSON schema.
-"""
+SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and responding with a JSON using the following JSON schema: {json.dumps(JSON_SCHEMA)}"""
 
 
 model, tokenizer = FastModel.from_pretrained(
