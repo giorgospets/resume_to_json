@@ -23,34 +23,37 @@ def main():
 
     parser = ArgumentParser()
 
-    parser.add_argument("--model_name", default="finetuned_gemma-3-1b-it-4bit", type=str)
+    parser.add_argument("--model_name", default="full_finetuned_gemma-3-270m-it", type=str)
+    parser.add_argument("--checkpoint", default="230", type=str)
     args = parser.parse_args()
 
-
     DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/test_structured_dataset.json")
-    OUTPUT_JSON_FILEPATH = os.path.join(PROJECT_ROOT, f"data/test_results_{args.model_name.split("/")[1].split("/")[0]}.json")
+    OUTPUT_JSON_FILEPATH = os.path.join(PROJECT_ROOT, f"data/test_results_{args.model_name}_{args.checkpoint}.json")
 
     result_dict = {}
 
     with open(DATASET_DICT_FILEPATH, "r") as f:
         dataset_dict: dict[str, dict] = json.load(f)
 
-    finetuned_lora_model_dir_16_bit = os.path.join(MODELS_PATH, args.model_name)
+    # Point to the checkpoint directory
+    model_checkpoint_path = os.path.join(MODELS_PATH, args.model_name, f"checkpoint-{args.checkpoint}")
+    
+    print(f"Loading model from: {model_checkpoint_path}")
 
     llm = LLM(
-        model=finetuned_lora_model_dir_16_bit,
+        model=model_checkpoint_path,
         dtype="auto",
-        max_seq_len_to_capture=MAX_SEQ_LENGTH
+        max_seq_len_to_capture=MAX_SEQ_LENGTH,
+        max_model_len=MAX_SEQ_LENGTH
     )
-    tokenizer = AutoTokenizer.from_pretrained(finetuned_lora_model_dir_16_bit)
-
+    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint_path)
 
     sampling_params = SamplingParams(
-            temperature=1.0,
-            top_p=0.95,
-            max_tokens=150,
-            top_k=64
-        )
+        temperature=1.0,
+        top_p=0.95,
+        max_tokens=MAX_SEQ_LENGTH,
+        top_k=64
+    )
 
     batch_prompts = []
 

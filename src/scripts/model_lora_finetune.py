@@ -3,7 +3,7 @@ import torch
 import os
 import json
 from trl import SFTTrainer
-from transformers import TrainingArguments
+from transformers import TrainingArguments, EarlyStoppingCallback
 from unsloth import is_bfloat16_supported
 from unsloth.chat_templates import train_on_responses_only
 from unsloth.chat_templates import get_chat_template
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         eval_steps=10,
         save_strategy="steps",
         save_steps=10,
-        save_total_limit=1,
+        save_total_limit=3,
         metric_for_best_model="eval_loss",
         greater_is_better=False,
     )
@@ -94,16 +94,22 @@ if __name__ == "__main__":
         train_dataset=train_dataset,
         dataset_text_field="text",
         max_seq_length=MAX_SEQ_LENGTH,
-        dataset_num_proc=2,
+        dataset_num_proc=12,
         packing=True,
-        args=args
+        args=args,
+        callbacks=[
+            EarlyStoppingCallback(
+                early_stopping_patience=3,
+                early_stopping_threshold=0.005
+            )
+        ],
     )
 
-    trainer = train_on_responses_only(
-        trainer,
-        instruction_part="<start_of_turn>user\n",
-        response_part="<start_of_turn>model\n",
-    )
+    # trainer = train_on_responses_only(
+    #     trainer,
+    #     instruction_part="<start_of_turn>user\n",
+    #     response_part="<start_of_turn>model\n",
+    # )
 
     # GPU stats and training call
     gpu_stats = torch.cuda.get_device_properties(0)
