@@ -84,7 +84,10 @@ def create_resume_dataset(
         return {"text": texts}
     
     def filter_long_sequences(example):
-        return len(tokenizer.encode(example['text'])) <= MAX_SEQ_LENGTH
+        try:
+            return len(tokenizer.encode(example['text'])) <= MAX_SEQ_LENGTH
+        except AttributeError:
+            return len(tokenizer(example['text'])) <= MAX_SEQ_LENGTH
 
     dataset = Dataset.from_list(data)
 

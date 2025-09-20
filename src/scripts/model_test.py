@@ -4,7 +4,16 @@ from vllm import LLM, SamplingParams
 from argparse import ArgumentParser
 from typing import Any, Optional
 import os
+import sys
 from dotenv import load_dotenv
+
+load_dotenv()
+
+PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+sys.path.append(PROJECT_ROOT)
+sys.path.append(os.path.join(PROJECT_ROOT, "src"))
+sys.path.append(os.path.join(PROJECT_ROOT, "src/scripts"))
+sys.path.append(os.path.join(PROJECT_ROOT, "src/utils"))
 from utils.training_utils import MAX_SEQ_LENGTH
 from utils.training_utils import format_prompts
 
@@ -25,6 +34,7 @@ def main():
 
     parser.add_argument("--model_name", default="full_finetuned_gemma-3-270m-it", type=str)
     parser.add_argument("--checkpoint", default="230", type=str)
+    parser.add_argument("--lora", action="store_true", )
     args = parser.parse_args()
 
     DATASET_DICT_FILEPATH = os.path.join(PROJECT_ROOT, "data/test_structured_dataset.json")
@@ -37,7 +47,9 @@ def main():
 
     # Point to the checkpoint directory
     model_checkpoint_path = os.path.join(MODELS_PATH, args.model_name, f"checkpoint-{args.checkpoint}")
-    
+    if args.lora:
+        OUTPUT_JSON_FILEPATH = os.path.join(PROJECT_ROOT, f"data/test_results_{args.model_name}.json")
+        model_checkpoint_path = os.path.join(MODELS_PATH, args.model_name)
     print(f"Loading model from: {model_checkpoint_path}")
 
     llm = LLM(

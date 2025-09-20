@@ -1,13 +1,21 @@
 from unsloth import FastModel
 import torch
 import os
+import sys
+from dotenv import load_dotenv
 import json
 from trl import SFTTrainer
 from transformers import TrainingArguments, EarlyStoppingCallback
 from unsloth import is_bfloat16_supported
 from unsloth.chat_templates import train_on_responses_only
 from unsloth.chat_templates import get_chat_template
+load_dotenv()
 
+PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+sys.path.append(PROJECT_ROOT)
+sys.path.append(os.path.join(PROJECT_ROOT, "src"))
+sys.path.append(os.path.join(PROJECT_ROOT, "src/scripts"))
+sys.path.append(os.path.join(PROJECT_ROOT, "src/utils"))
 
 from utils.training_utils import (
     create_resume_dataset,
@@ -25,7 +33,7 @@ SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and res
 
 
 model, tokenizer = FastModel.from_pretrained(
-    model_name="unsloth/gemma-3-1b-it-unsloth-bnb-4bit",
+    model_name="unsloth/gemma-3-4b-it-unsloth-bnb-4bit",
     max_seq_length=MAX_SEQ_LENGTH,
     load_in_4bit=True,
     load_in_8bit=False,
@@ -63,11 +71,12 @@ train_dataset = create_resume_dataset(train_dataset_dict, tokenizer, SYSTEM_PROM
 val_dataset = create_resume_dataset(val_dataset_dict, tokenizer, SYSTEM_PROMPT)
 
 if __name__ == "__main__":
+
     args = TrainingArguments(
         per_device_train_batch_size=12,
         gradient_accumulation_steps=24,
         warmup_ratio=0.05,
-        num_train_epochs=4,
+        num_train_epochs=1,
         learning_rate=2e-4,
         fp16=not is_bfloat16_supported(),
         bf16=is_bfloat16_supported(),
@@ -76,8 +85,8 @@ if __name__ == "__main__":
         weight_decay=0.01,
         lr_scheduler_type="linear",
         seed=3407,
-        output_dir=os.path.join(MODELS_PATH, "lora_finetuned_gemma-3-1b-it-4bit"),
-        report_to="none",
+        output_dir=os.path.join(MODELS_PATH, "lora_finetuned_gemma-3-4b-it-4bit"),
+        report_to="tensorboard",
         eval_strategy="steps",
         eval_steps=10,
         save_strategy="steps",
@@ -120,3 +129,6 @@ if __name__ == "__main__":
     print(f"{start_gpu_memory} GB of memory reserved.")
 
     trainer_stats = trainer.train()
+
+    finetuned_lora_model_dir_16_bit = os.path.join(MODELS_PATH, "finetuned_gemma-3-4b-it-unsloth-bnb-4bit-lora-16bit")
+    model.save_pretrained_merged(finetuned_lora_model_dir_16_bit, tokenizer, save_method="merged_16bit")
