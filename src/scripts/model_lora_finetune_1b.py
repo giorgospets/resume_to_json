@@ -33,7 +33,7 @@ SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and res
 
 
 model, tokenizer = FastModel.from_pretrained(
-    model_name="unsloth/gemma-3-4b-it-unsloth-bnb-4bit",
+    model_name="unsloth/gemma-3-1b-it-unsloth-bnb-4bit",
     max_seq_length=MAX_SEQ_LENGTH,
     load_in_4bit=True,
     load_in_8bit=False,
@@ -74,8 +74,7 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--num_epochs", default=1, type=float)
     parser_args = parser.parse_args()
-    model_name = 'lora_finetuned_gemma-3-4b-it-4bit'
-
+    model_name = 'lora_finetuned_gemma-3-1b-it-4bit'
     args = TrainingArguments(
         per_device_train_batch_size=12,
         gradient_accumulation_steps=24,
@@ -114,7 +113,7 @@ if __name__ == "__main__":
         args=args,
         callbacks=[
             EarlyStoppingCallback(
-                early_stopping_patience=3,
+                early_stopping_patience=2,
                 early_stopping_threshold=0.005
             )
         ],
