@@ -2,7 +2,7 @@ import json
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from argparse import ArgumentParser
-from typing import Any, Optional
+import Levenshtein
 import os
 import sys
 from dotenv import load_dotenv
@@ -21,10 +21,44 @@ load_dotenv()
 
 PROJECT_ROOT = os.getenv("PROJECT_ROOT")
 MODELS_PATH = os.path.join(PROJECT_ROOT, "models")
+
 with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
     json_schema = json.load(f)
 
 SYSTEM_PROMPT = f"""You are an expert in extracting information from CVs and responding with a JSON using the following JSON schema: {json.dumps(json_schema)}"""
+
+
+def is_json_valid(json_str: str) -> bool:
+    try:
+        json.loads(json_str)
+        return True
+    except json.JSONDecodeError:
+        return False
+
+
+def levenshtein_distance(gt: str, pred: str):
+    # Levenshtein distance
+    dist = Levenshtein.distance(gt, pred)
+    
+    # Number of matching characters
+    matches = max(len(gt), len(pred)) - dist
+    
+    # Precision & Recall
+    precision = matches / len(pred) if pred else 0
+    recall = matches / len(gt) if gt else 0
+    
+    # F1 score
+    if precision + recall == 0:
+        f1 = 0.0
+    else:
+        f1 = 2 * precision * recall / (precision + recall)
+    
+    return {
+        "levenshtein_distance": dist,
+        "levenshtein_precision": precision,
+        "levenshtein_recall": recall,
+        "levenshtein_f1": f1
+    }
 
 
 def main():
@@ -75,7 +109,7 @@ def main():
             "Category": data_point["Category"],
             "Text": data_point["Text"],
             "json": data_point["json"],
-            "pred_json": ""
+            "pred_json": "",
         }
 
         formatted_prompt = format_prompts(
@@ -89,8 +123,13 @@ def main():
     outputs = llm.generate(batch_prompts, sampling_params)
 
     for i, output in enumerate(outputs):
-        generated_text = output.outputs[0].text.strip()
-        result_dict[i]["pred_json"] = generated_text
+        generated_json_str = output.outputs[0].text.strip()
+        result_dict[i]["pred_json"] = generated_json_str
+        result_dict[i].update(levenshtein_distance(
+            result_dict[i]["json"], 
+            generated_json_str
+        ))
+        result_dict[i]["is_json_valid"] = is_json_valid(generated_json_str)
 
     print(f"Saving results to {OUTPUT_JSON_FILEPATH}")
     with open(OUTPUT_JSON_FILEPATH, 'w', encoding='utf-8') as f:
