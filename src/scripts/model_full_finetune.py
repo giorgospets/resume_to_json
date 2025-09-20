@@ -2,12 +2,19 @@ from unsloth import FastModel
 import torch
 import os
 import json
+import sys
+from dotenv import load_dotenv
 from trl import SFTTrainer
 from transformers import TrainingArguments, EarlyStoppingCallback
 from unsloth import is_bfloat16_supported
-from unsloth.chat_templates import train_on_responses_only
 from unsloth.chat_templates import get_chat_template
+load_dotenv()
 
+PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+sys.path.append(PROJECT_ROOT)
+sys.path.append(os.path.join(PROJECT_ROOT, "src"))
+sys.path.append(os.path.join(PROJECT_ROOT, "src/scripts"))
+sys.path.append(os.path.join(PROJECT_ROOT, "src/utils"))
 from utils.training_utils import (
     create_resume_dataset,
     MAX_SEQ_LENGTH,
