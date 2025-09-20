@@ -92,7 +92,7 @@ if __name__ == "__main__":
         max_grad_norm=1.0,
         callbacks=[
             EarlyStoppingCallback(
-                early_stopping_patience=3,
+                early_stopping_patience=2,
                 early_stopping_threshold=0.005
             )
         ],
