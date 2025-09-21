@@ -6,8 +6,6 @@ cd ${root_dir}
 
 python ./src/scripts/model_lora_finetune_4b.py --num_epochs 1
 
-python ./src/scripts/model_lora_finetune_4b.py --num_epochs 3
-
 python ./src/scripts/model_lora_finetune_1b.py --num_epochs 4
 
 python ./src/scripts/model_full_finetune.py
