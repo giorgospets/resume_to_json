@@ -6,10 +6,10 @@ import Levenshtein
 import os
 import sys
 from dotenv import load_dotenv
-
 load_dotenv()
 
 PROJECT_ROOT = os.getenv("PROJECT_ROOT")
+
 sys.path.append(PROJECT_ROOT)
 sys.path.append(os.path.join(PROJECT_ROOT, "src"))
 sys.path.append(os.path.join(PROJECT_ROOT, "src/scripts"))
@@ -17,9 +17,7 @@ sys.path.append(os.path.join(PROJECT_ROOT, "src/utils"))
 from utils.training_utils import MAX_SEQ_LENGTH
 from utils.training_utils import format_prompts
 
-load_dotenv()
 
-PROJECT_ROOT = os.getenv("PROJECT_ROOT")
 MODELS_PATH = os.path.join(PROJECT_ROOT, "models")
 
 with open(os.path.join(PROJECT_ROOT, "resume_json_schema.json"), "r") as f:
